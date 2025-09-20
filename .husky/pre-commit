@@ -1,0 +1,48 @@
+echo '🎨 Running Prettier and ESLint on staged files...'
+
+# Relevant staged files
+PRETTIER_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.(js|ts|json|css|md|yml)$' | sed 's| |\\ |g')
+ESLINT_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.(js|ts)$' | sed 's| |\\ |g')
+
+# Error flag
+HAS_ERROR=0
+
+# Apply Prettier
+if [ -n "$PRETTIER_FILES" ]; then
+  echo '🖌 Formatting with Prettier...'
+  prettier $PRETTIER_FILES --write --list-different --ignore-unknown || {
+    echo "❌ Error: Prettier found problems that he couldn't correct.."
+    HAS_ERROR=1
+  }
+fi
+
+# Apply ESLint
+if [ -n "$ESLINT_FILES" ]; then
+  echo '🧹 Running ESLint...'
+  eslint $ESLINT_FILES --fix || {
+    echo '❌ Error: ESLint found errors that it could not automatically correct.'
+    HAS_ERROR=1
+  }
+fi
+
+# Clean .next folder silently
+rm -rf .next 2>/dev/null
+
+# Run TypeScript type checking
+echo '🔍 Checking TypeScript types...'
+npm run check-types || {
+  echo '🤡😂❌🤡 Failed Type check. 🤡😂❌🤡
+        Are you seriously trying to write that? Make the changes required above.'
+  HAS_ERROR=1
+}
+
+# Cancel commit if any errors were found
+if [ $HAS_ERROR -ne 0 ]; then
+  echo '⛔ Commit aborted due to lint, format or type errors.'
+  exit 1
+fi
+
+# Reindexes modified files
+echo "$PRETTIER_FILES" "$ESLINT_FILES" | xargs git add
+
+echo '✅ Files formatted, fixed, and ready for commit.'
