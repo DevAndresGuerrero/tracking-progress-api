@@ -15,5 +15,3 @@ tsconfig.build.json
 .prettierrc
 .lintstagedrc
 nest-cli.json
-test/app.e2e-spec.ts
-test/jest-e2e.json
