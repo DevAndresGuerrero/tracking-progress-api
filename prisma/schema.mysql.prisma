@@ -1,0 +1,147 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum ActivityType {
+  reading
+  exercise
+  task
+  habit
+  study
+  project
+  custom
+}
+
+model User {
+  id         String      @id @default(uuid()) @db.VarChar(36)
+  name       String
+  email      String      @unique
+  password   String
+  userRoles  UserRole[]
+  activities Activity[]
+  categories Category[]
+  tags       Tag[]
+  progress   Progress[]
+  refreshTokens RefreshToken[]
+  createdAt  DateTime    @default(now()) @db.DateTime(6)
+  updatedAt  DateTime    @updatedAt @db.DateTime(6)
+}
+
+model Role {
+  id              String           @id @default(uuid()) @db.VarChar(36)
+  name            String           @unique
+  description     String?
+  rolePermissions RolePermission[]
+  userRoles       UserRole[]
+}
+
+model Permission {
+  id              String           @id @default(uuid()) @db.VarChar(36)
+  name            String           @unique
+  description     String?
+  rolePermissions RolePermission[]
+}
+
+model RolePermission {
+  id           String     @id @default(uuid()) @db.VarChar(36)
+  role         Role       @relation(fields: [roleId], references: [id])
+  roleId       String     @db.VarChar(36)
+  permission   Permission @relation(fields: [permissionId], references: [id])
+  permissionId String     @db.VarChar(36)
+  @@unique([roleId, permissionId])
+}
+
+model UserRole {
+  id     String @id @default(uuid()) @db.VarChar(36)
+  userId String @db.VarChar(36)
+  user   User   @relation(fields: [userId], references: [id])
+  roleId String @db.VarChar(36)
+  role   Role   @relation(fields: [roleId], references: [id])
+  @@unique([userId, roleId])
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid()) @db.VarChar(36)
+  token     String   @unique
+  userId    String   @db.VarChar(36)
+  user      User     @relation(fields: [userId], references: [id])
+  expiresAt DateTime @db.DateTime(6)
+  createdAt DateTime @default(now()) @db.DateTime(6)
+}
+
+model Category {
+  id          String      @id @default(uuid()) @db.VarChar(36)
+  name        String
+  description String?
+  color       String?
+  userId      String      @db.VarChar(36)
+  user        User        @relation(fields: [userId], references: [id])
+  activities  Activity[]
+  createdAt   DateTime    @default(now()) @db.DateTime(6)
+  updatedAt   DateTime    @updatedAt @db.DateTime(6)
+}
+
+model Tag {
+  id          String        @id @default(uuid()) @db.VarChar(36)
+  name        String
+  color       String?
+  userId      String        @db.VarChar(36)
+  user        User          @relation(fields: [userId], references: [id])
+  activities  ActivityTag[]
+  createdAt   DateTime      @default(now()) @db.DateTime(6)
+  updatedAt   DateTime      @updatedAt @db.DateTime(6)
+}
+
+model Activity {
+  id          String        @id @default(uuid()) @db.VarChar(36)
+  title       String
+  description String?
+  type        ActivityType
+  userId      String        @db.VarChar(36)
+  user        User          @relation(fields: [userId], references: [id])
+  categoryId  String?       @db.VarChar(36)
+  category    Category?     @relation(fields: [categoryId], references: [id])
+  tags        ActivityTag[]
+  progress    Progress[]
+  createdAt   DateTime      @default(now()) @db.DateTime(6)
+  updatedAt   DateTime      @updatedAt @db.DateTime(6)
+}
+
+model ActivityTag {
+  id          String    @id @default(uuid()) @db.VarChar(36)
+  activityId  String    @db.VarChar(36)
+  activity    Activity  @relation(fields: [activityId], references: [id])
+  tagId       String    @db.VarChar(36)
+  tag         Tag       @relation(fields: [tagId], references: [id])
+  @@unique([activityId, tagId])
+}
+
+enum ProgressStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  ON_HOLD
+  CANCELLED
+}
+
+model Progress {
+  id                       String         @id @default(uuid()) @db.VarChar(36)
+  title                    String
+  description              String?
+  status                   ProgressStatus @default(NOT_STARTED)
+  percentage               Int            @default(0)
+  activityId               String?        @db.VarChar(36)
+  activity                 Activity?      @relation(fields: [activityId], references: [id])
+  userId                   String         @db.VarChar(36)
+  user                     User           @relation(fields: [userId], references: [id])
+  startDate                DateTime?      @db.DateTime(6)
+  endDate                  DateTime?      @db.DateTime(6)
+  estimatedCompletionDate  DateTime?      @db.DateTime(6)
+  createdAt                DateTime       @default(now()) @db.DateTime(6)
+  updatedAt                DateTime       @updatedAt @db.DateTime(6)
+}

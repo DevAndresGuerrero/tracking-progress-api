@@ -5,7 +5,7 @@ import { UpdatePermissionDto } from "./dto/update-permission.dto";
 
 @Injectable()
 export class PermissionsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(createPermissionDto: CreatePermissionDto) {
     return this.prisma.permission.create({

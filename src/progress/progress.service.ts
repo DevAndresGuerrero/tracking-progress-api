@@ -5,7 +5,7 @@ import { UpdateProgressDto } from "./dto/update-progress.dto";
 
 @Injectable()
 export class ProgressService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(createProgressDto: CreateProgressDto, userId: string) {
     const progress = await this.prisma.progress.create({

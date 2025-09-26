@@ -1,0 +1,147 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum ActivityType {
+  reading
+  exercise
+  task
+  habit
+  study
+  project
+  custom
+}
+
+model User {
+  id         String      @id @default(uuid())
+  name       String
+  email      String      @unique
+  password   String
+  userRoles  UserRole[]
+  activities Activity[]
+  categories Category[]
+  tags       Tag[]
+  progress   Progress[]
+  refreshTokens RefreshToken[]
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+}
+
+model Role {
+  id              String           @id @default(uuid())
+  name            String           @unique
+  description     String?
+  rolePermissions RolePermission[]
+  userRoles       UserRole[]
+}
+
+model Permission {
+  id              String           @id @default(uuid())
+  name            String           @unique
+  description     String?
+  rolePermissions RolePermission[]
+}
+
+model RolePermission {
+  id           String     @id @default(uuid())
+  role         Role       @relation(fields: [roleId], references: [id])
+  roleId       String
+  permission   Permission @relation(fields: [permissionId], references: [id])
+  permissionId String
+  @@unique([roleId, permissionId])
+}
+
+model UserRole {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+  roleId String
+  role   Role   @relation(fields: [roleId], references: [id])
+  @@unique([userId, roleId])
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model Category {
+  id          String      @id @default(uuid())
+  name        String
+  description String?
+  color       String?
+  userId      String
+  user        User        @relation(fields: [userId], references: [id])
+  activities  Activity[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+}
+
+model Tag {
+  id          String        @id @default(uuid())
+  name        String
+  color       String?
+  userId      String
+  user        User          @relation(fields: [userId], references: [id])
+  activities  ActivityTag[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model Activity {
+  id          String        @id @default(uuid())
+  title       String
+  description String?
+  type        ActivityType
+  userId      String
+  user        User          @relation(fields: [userId], references: [id])
+  categoryId  String?
+  category    Category?     @relation(fields: [categoryId], references: [id])
+  tags        ActivityTag[]
+  progress    Progress[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model ActivityTag {
+  id          String    @id @default(uuid())
+  activityId  String
+  activity    Activity  @relation(fields: [activityId], references: [id])
+  tagId       String
+  tag         Tag       @relation(fields: [tagId], references: [id])
+  @@unique([activityId, tagId])
+}
+
+enum ProgressStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  ON_HOLD
+  CANCELLED
+}
+
+model Progress {
+  id                       String         @id @default(uuid())
+  title                    String
+  description              String?
+  status                   ProgressStatus @default(NOT_STARTED)
+  percentage               Int            @default(0)
+  activityId               String?
+  activity                 Activity?      @relation(fields: [activityId], references: [id])
+  userId                   String
+  user                     User           @relation(fields: [userId], references: [id])
+  startDate                DateTime?
+  endDate                  DateTime?
+  estimatedCompletionDate  DateTime?
+  createdAt                DateTime       @default(now())
+  updatedAt                DateTime       @updatedAt
+}

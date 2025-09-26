@@ -24,7 +24,7 @@ Generar en el repositorio existente todos los artefactos backend necesarios (Pri
 
 ## Archivos de entorno (.env) necesarios (lista)
 
-```
+```bash
 DATABASE_URL=postgresql://user:pass@localhost:5432/tracking_db?schema=public
 JWT_SECRET=tu_secreto_largo
 JWT_EXPIRES_IN=15m

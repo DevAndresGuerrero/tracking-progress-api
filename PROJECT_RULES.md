@@ -166,7 +166,7 @@ PORT=3000
 
 ### Estructura de Archivos
 
-```
+```bash
 src/
 ├── module-name/
 │   ├── module-name.module.ts

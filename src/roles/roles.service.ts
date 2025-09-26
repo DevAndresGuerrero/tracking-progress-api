@@ -16,7 +16,7 @@ type RoleWithPermissions = {
 
 @Injectable()
 export class RolesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(createRoleDto: CreateRoleDto): Promise<RoleWithPermissions> {
     const { permissionIds, ...roleData } = createRoleDto;

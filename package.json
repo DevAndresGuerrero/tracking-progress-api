@@ -23,6 +23,16 @@
     "check-format": "prettier --check .",
     "check-lint": "eslint . --ext .ts,.js",
     "check-all": "pnpm check-format && pnpm check-lint && pnpm check-types && pnpm test && pnpm build",
+    "db:setup": "node scripts/setup-database.js",
+    "db:setup:sqlite": "node scripts/setup-database.js sqlite",
+    "db:setup:postgresql": "node scripts/setup-database.js postgresql",
+    "db:setup:mysql": "node scripts/setup-database.js mysql",
+    "db:migrate": "prisma migrate dev",
+    "db:migrate:deploy": "prisma migrate deploy",
+    "db:push": "prisma db push",
+    "db:seed": "prisma db seed",
+    "db:studio": "prisma studio",
+    "db:generate": "prisma generate",
     "prepare": "husky"
   },
   "dependencies": {
@@ -76,9 +86,6 @@
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.44.0"
-  },
-  "prisma": {
-    "seed": "ts-node prisma/seed.ts"
   },
   "jest": {
     "moduleFileExtensions": [

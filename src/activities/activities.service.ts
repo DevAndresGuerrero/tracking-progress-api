@@ -32,7 +32,7 @@ type ActivityWithRelations = {
 
 @Injectable()
 export class ActivitiesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(createActivityDto: CreateActivityDto, userId: string): Promise<ActivityWithRelations> {
     const { tagIds, categoryId, ...activityData } = createActivityDto;
